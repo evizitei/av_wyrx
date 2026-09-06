@@ -2,6 +2,10 @@
 
 An interactive first slice for laying out a rectangular AV space and exploring simplified speaker coverage. Built to try the interface before defining the next slice.
 
+![Table view showing the Dinner layout with nine round tables, table controls, and estimated speaker coverage](docs/images/table-view.jpg)
+
+The **Tables** view with the **Dinner** starting layout. Tables are visual layout objects and do not affect the SPL prediction.
+
 ## Run
 
 With Node.js 22 or newer:
