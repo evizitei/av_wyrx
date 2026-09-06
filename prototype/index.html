@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#174d47">
+  <title>Vectyr Wyrx — Room study</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="/" aria-label="Vectyr Wyrx home"><span class="brand-mark">v<span>↗</span></span><span>VECTYR <b>WYRX</b></span></a>
+    <span class="header-divider"></span>
+    <div class="project-name">Room study <span class="slice-badge">FIRST SLICE</span></div>
+    <div class="header-actions">
+      <label class="preset-label">Starting layout <select id="event-preset" aria-label="Starting layout"><option value="conference">Conference</option><option value="concert">Concert</option><option value="dinner">Dinner</option></select></label>
+      <button id="settings-button" class="quiet" title="Settings" aria-label="Settings">⚙ <span>Settings</span></button>
+      <button id="add-speaker" class="primary">＋ Add speaker</button>
+    </div>
+  </header>
+  <main class="app-layout">
+    <aside class="inspector">
+      <div class="inspector-tabs" role="tablist" aria-label="Edit controls">
+        <button role="tab" aria-selected="true" data-tab="space">Space</button>
+        <button role="tab" aria-selected="false" data-tab="speaker">Speakers <span id="speaker-count">2</span></button>
+        <button role="tab" aria-selected="false" data-tab="furniture">Tables</button>
+      </div>
+      <div id="inspector-content" class="inspector-content"></div>
+      <div class="inspector-footer"><span class="status-dot"></span> Local working study <span>·</span> Feet / dB</div>
+    </aside>
+    <section class="workspace">
+      <div class="workspace-toolbar">
+        <div class="view-label"><span class="view-icon">⊞</span><strong>Plan</strong><span class="muted">Top view</span></div>
+        <div class="toolbar-actions">
+          <button id="undo" class="icon-button" title="Undo (⌘/Ctrl Z)" aria-label="Undo">↶</button>
+          <button id="redo" class="icon-button" title="Redo (⌘/Ctrl Shift Z)" aria-label="Redo">↷</button>
+          <span class="toolbar-divider"></span>
+          <button id="zoom-out" class="icon-button" aria-label="Zoom out">−</button><span id="zoom-value" class="zoom-label">100%</span><button id="zoom-in" class="icon-button" aria-label="Zoom in">＋</button>
+          <button id="fit" class="small-button">Fit room</button>
+        </div>
+      </div>
+      <div class="plan-container" id="plan-container">
+        <canvas id="plan" aria-label="Interactive top-down room plan. Drag speakers, stage, seating, or tables. Drag a speaker's circular aim handle to rotate it."></canvas>
+        <div class="canvas-title"><span class="eyebrow">ROOM STUDY / 01</span><h1 id="room-caption">Conference</h1><span id="room-dimensions">40 × 100 ft</span></div>
+        <div class="plan-layers">
+          <label><input id="heatmap-toggle" type="checkbox" checked><span>Direct SPL</span></label>
+          <label><input id="overlap-toggle" type="checkbox"><span>Overlap advisory</span><i class="overlap-swatch"></i><span id="overlap-summary" hidden></span></label>
+        </div>
+        <div class="legend" id="legend"><span class="legend-title">ESTIMATED DIRECT SPL <span>dB</span></span><div class="gradient"></div><div class="legend-ticks"><span>65</span><span>80</span><span>95</span><span>110+</span></div></div>
+        <div id="point-readout" class="point-readout" hidden></div>
+        <div class="canvas-hint">Drag to place <span>·</span> Round handle to aim <span>·</span> Scroll to zoom <span>·</span> Space + drag to pan</div>
+      </div>
+      <div class="analysis-strip">
+        <div class="prediction-label"><span class="eyebrow">LISTENING SURFACE</span><div class="segmented" aria-label="Listening height"><button id="seated" class="active">Seated <small>4 ft</small></button><button id="standing">Standing <small>5.5 ft</small></button></div></div>
+        <div class="metric"><span>Minimum</span><strong id="stat-min">—</strong></div>
+        <div class="metric"><span>Median</span><strong id="stat-median">—</strong></div>
+        <div class="metric"><span>Maximum</span><strong id="stat-max">—</strong></div>
+        <div class="metric"><span>Overlap area</span><strong id="stat-overlap">—</strong></div>
+      </div>
+      <section class="side-section">
+        <div class="side-header"><div class="view-label"><span class="view-icon">⌁</span><strong>Side view</strong><span id="side-caption" class="muted">Select a speaker</span></div><span class="side-hint">Drag the source up/down · Drag the aim handle</span></div>
+        <div class="side-container"><canvas id="side" aria-label="Side view through the selected speaker's aiming direction. Drag the speaker to adjust its top height or drag its aim handle to adjust vertical tilt."></canvas></div>
+      </section>
+      <footer class="workspace-footer"><span><i class="status-dot"></i> Live prediction</span><span>Simplified HF pattern · Energy sum · No reflections</span><button id="model-notes-button">Model notes ↗</button></footer>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <dialog id="settings-dialog">
+    <form method="dialog"><div class="dialog-heading"><div><span class="eyebrow">PREFERENCES</span><h2>Prediction settings</h2></div><button class="icon-button" aria-label="Close settings">×</button></div></form>
+    <label class="settings-field">Default output offset <div class="number-box"><input id="default-offset" type="number" value="-6" min="-60" max="0" step="1"><span>dB</span></div></label>
+    <p>Applied to newly added speakers. Each speaker keeps its own editable offset. Use 0 dB for peak output.</p>
+    <div class="two-fields"><label class="settings-field">Legend minimum<div class="number-box"><input id="legend-min" type="number" value="65" step="5"><span>dB</span></div></label><label class="settings-field">Legend maximum<div class="number-box"><input id="legend-max" type="number" value="110" step="5"><span>dB</span></div></label></div>
+    <p>The color scale stays fixed as you edit, so changes in output remain visible.</p>
+    <div class="dialog-note">This first slice keeps the study and preferences in memory. Reloading starts a fresh study.</div>
+  </dialog>
+  <dialog id="model-dialog"><form method="dialog"><div class="dialog-heading"><div><span class="eyebrow">FIRST-SLICE ASSUMPTIONS</span><h2>How to read this study</h2></div><button class="icon-button" aria-label="Close model notes">×</button></div></form>
+    <p>The heatmap estimates direct SPL from the peak rating at 1 metre, output offset, distance, and a smooth generic HF pattern. Nominal horizontal and vertical beamwidths are −6 dB in their respective planes.</p>
+    <p>Speaker height means the top of the cabinet above the common room-floor reference. For this first slice, that top point is also the modeled sound source. Sound level is capped at its 1-metre reference inside 1 metre.</p>
+    <p>Speakers combine by adding energies. The overlap advisory marks points where the two strongest contributors are within 6 dB and both are inside their nominal HF zones. It does not predict cancellation.</p>
+    <p>Seating is a continuous ramp. Tables and the stage are layout objects. Room reflections, obstructions, frequency-dependent measurements, and phase/delay interactions are not modeled.</p>
+    <div class="dialog-note">Use this skeleton to explore layout and interaction. The generic directional model is not a manufacturer-calibrated prediction.</div>
+  </dialog>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
